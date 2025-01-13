@@ -83,10 +83,10 @@
 				time: 0, // 时间
 				autoSetBoom: true, // 自动标雷
 				timer: null, // 计时器
-				x: 9, // 有多少列
-				y: 9, // 有多少行
-				defaultNum: 10, // 规则雷数
-				num: 10, // 剩余雷的数量
+				x: 16, // 有多少列
+				y: 16, // 有多少行
+				defaultNum: 40, // 规则雷数
+				num: 40, // 剩余雷的数量
 				status: 0, // 0-正常，1-踩雷，2-成功
 				imgSmile, // 0-笑脸，1-失败，2-成功
 				imgFontNum, // 机械数字0-9
@@ -346,7 +346,7 @@
 				// all-总数，count-雷数
 				const nums = new Set();
 				while (nums.size < count) {
-					const num = Math.floor(Math.random() * (all - 8));
+					const num = Math.floor(Math.random() * (all - 9));
 					nums.add(num);
 				}
 				return Array.from(nums);
