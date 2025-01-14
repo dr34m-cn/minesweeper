@@ -73,3 +73,21 @@ jobs:
         secret_key: ${{ secrets.TCLOUD_API_KEY }}
         bucket: ms-1252906577
         region: ap-beijing
+
+
+  deploy-gh-page:
+    runs-on: ubuntu-latest
+    environment: 
+      name: TencentCOS
+    needs: build
+    steps:
+    - name: 下载构建结果
+      uses: actions/download-artifact@v3
+      with:
+        name: ms-dist
+        path: ms-dist
+
+    - name: 部署
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        folder: ms-dist
