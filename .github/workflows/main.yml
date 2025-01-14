@@ -63,21 +63,11 @@ jobs:
         name: ms-dist
         path: ms-dist
 
-    - name: 安装腾讯云依赖
-      run: |
-        git clone https://github.com/tencentyun/coscmd.git
-        cd coscmd
-        sudo python setup.py install
-
-    - name: 配置腾讯云依赖
-      env:
-        SECRET_ID: ${{ secrets.TCLOUD_API_ID }}
-        SECRET_KEY: ${{ secrets.TCLOUD_API_KEY }}
-        BUCKET: ms-1252906577
-        REGION: ap-beijing
-      run: |
-        coscmd config -a $SECRET_ID -s $SECRET_KEY -b $BUCKET -r $REGION
-
-    - name: 上传到腾讯云COS
-      run: |
-        coscmd upload -rfs --delete ./ms-dist/ /
+    - name: Upload COS
+      uses: zkqiang/tencent-cos-action@v0.1.0
+      with:
+        args: upload -rfs --delete ./ms-dist/ /
+        secret_id: ${{ secrets.TCLOUD_API_ID }}
+        secret_key: ${{ secrets.TCLOUD_API_KEY }}
+        bucket: ms-1252906577
+        region: ap-beijing
