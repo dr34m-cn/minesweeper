@@ -54,6 +54,8 @@ jobs:
 
   deploy-tx:
     runs-on: ubuntu-latest
+    environment: 
+      name: TencentCOS
     needs: build
         
     steps:
