@@ -1,0 +1,81 @@
+name: ms持续集成
+
+on:
+  push:
+    branches:
+      - main
+      
+jobs:
+  build:
+    runs-on: ubuntu-latest
+        
+    steps:
+    - name: 检出仓库代码
+      uses: actions/checkout@master
+      
+    - name: 安装Node.js 14.x
+      uses: actions/setup-node@master
+      with:
+        node-version: "14.x"
+    
+    - name: 安装依赖
+      run: |
+        npm install
+
+    - name: 构建
+      run: |
+        npm run build
+
+    - name: 上传artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ms-dist
+        path: dist
+        retention-days: 1
+
+  # deploy-page:
+  #   runs-on: ubuntu-latest
+  #   needs: build
+        
+  #   steps:
+  #   - name: 下载构建结果
+  #     uses: actions/download-artifact@v3
+  #     with:
+  #       name: ms-dist
+  #       path: ms-dist
+
+  #   - name: 部署到Pages
+  #     uses: s0/git-publish-subdir-action@develop
+  #     env:
+  #       REPO: git@github.com:ms/ms.github.io.git
+  #       BRANCH: main
+  #       FOLDER: ms-dist
+  #       SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
+
+  deploy-tx:
+    runs-on: ubuntu-latest
+    needs: build
+        
+    steps:
+    - name: 下载构建结果
+      uses: actions/download-artifact@v3
+      with:
+        name: ms-dist
+        path: ms-dist
+
+    - name: 安装腾讯云依赖
+      run: |
+        sudo pip install coscmd
+
+    - name: 配置腾讯云依赖
+      env:
+        SECRET_ID: ${{ secrets.TCLOUD_API_ID }}
+        SECRET_KEY: ${{ secrets.TCLOUD_API_KEY }}
+        BUCKET: ms-1252906577
+        REGION: ap-beijing
+      run: |
+        coscmd config -a $SECRET_ID -s $SECRET_KEY -b $BUCKET -r $REGION
+
+    - name: 上传到腾讯云COS
+      run: |
+        coscmd upload -rfs --delete ./ms-dist/ /
