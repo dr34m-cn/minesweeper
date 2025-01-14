@@ -65,9 +65,9 @@ jobs:
 
     - name: 安装腾讯云依赖
       run: |
-        git clone https://github.com/tencentyun/coscmd.git
-        cd coscmd
-        python setup.py install
+        sudo git clone https://github.com/tencentyun/coscmd.git
+        sudo cd coscmd
+        sudo python setup.py install
 
     - name: 配置腾讯云依赖
       env:
