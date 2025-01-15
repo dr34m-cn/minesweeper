@@ -58,20 +58,23 @@
 					</div>
 				</div>
 			</div>
-			<div class="main-bottom">
-				<span style="margin-right: 5px;">自动标雷</span>
-				<el-switch v-model="autoSetBoom">
-				</el-switch>
-				<el-button type="success" style="margin-left: 20px;" @click="autoOpen">一键翻开</el-button>
-			</div>
-			<div class="main-tip">
-				<div class="main-tip-list">
-					<div>第一次不会点到雷，格子里的数字表示其周围雷的数量，一旦点到雷就会输，无法撤回，所以要慎重；</div>
-					<div>左键点开，右键标雷，左右键都可以取消标雷；</div>
-					<div>「一键翻开」可以快速帮你翻开那些不需要思考的格子，如果你是初学者，不要使用该功能；</div>
-					<div>「一键翻开」基于标雷信息，如果你标错了雷，使用该功能将可能翻到雷导致游戏失败；</div>
-					<div style="text-align: center;">当前版本：v1.0.0</div>
-				</div>
+		</div>
+		<div class="main-bottom">
+			<span style="margin-right: 5px;">自动标雷</span>
+			<el-switch v-model="autoSetBoom">
+			</el-switch>
+			<el-button type="primary" style="margin-left: 20px;" @click="autoOpen">一键翻开</el-button>
+			<el-button :disabled="!canSuccessFlag" type="success" style="margin-left: 20px;"
+				@click="autoSuccess">一键成功</el-button>
+		</div>
+		<div class="main-tip">
+			<div class="main-tip-list">
+				<div>第一次不会点到雷，格子里的数字表示其周围雷的数量，一旦点到雷就会输，无法撤回，所以要慎重；</div>
+				<div>左键点开，右键标雷，左右键都可以取消标雷；</div>
+				<div>「一键翻开」可以快速帮你翻开那些不需要思考的格子，如果你是初学者，不要使用该功能；</div>
+				<div>「一键翻开」基于标雷信息，如果你标错了雷，使用该功能将可能翻到雷导致游戏失败；</div>
+				<div>当剩余未翻开的格子<=4个且雷数<=3个时，可使用「一键成功」功能，自动翻开剩余格子。</div>
+				<div style="text-align: center;">当前版本：v1.0.1</div>
 			</div>
 		</div>
 	</div>
@@ -101,7 +104,8 @@
 				imgBoomNum, // 周围雷数0-8
 				startFlag: false, // 开始标志
 				imgBoxType, // 0-正常，1-标旗子，2-点爆的雷，3-雷
-				boxList: [] // 格子列表
+				boxList: [], // 格子列表
+				canSuccessFlag: false
 			};
 		},
 		created() {
@@ -110,8 +114,8 @@
 		watch: {
 			boxList: {
 				handler(newVal, oldVal) {
-					this.checkSuccess(newVal);
 					this.calcLastBoom(newVal);
+					this.checkSuccess(newVal);
 				},
 				deep: true
 			}
@@ -120,8 +124,26 @@
 			setDefault() {
 				this.setSize(this.x, this.y, this.defaultNum);
 			},
+			// 一键成功
+			autoSuccess() {
+				if (!this.canSuccessFlag) {
+					this.$message.error("坏人，可不许投机取巧");
+					return
+				}
+				for (let x = 0; x < this.x; x++) {
+					for (let y = 0; y < this.y; y++) {
+						if (this.boxList[y][x].isBoom) {
+							this.boxList[y][x].flag = true;
+						} else {
+							this.boxList[y][x].open = true;
+						}
+					}
+				}
+				this.$forceUpdate();
+			},
 			setSize(x, y, num) {
 				this.stopTimeCount();
+				this.canSuccessFlag = false;
 				this.startFlag = false;
 				this.status = 0;
 				this.time = 0;
@@ -157,15 +179,24 @@
 			// 检查标记成功
 			checkSuccess(box) {
 				let unOpenSize = 0;
+				let flag = true; // 未点开雷标识
 				for (let y = 0; y < this.y; y++) {
+					if (box[y].find(item => item.isBoom && item.open)) {
+						flag = false;
+					}
 					let line = box[y].filter(item => !item.open);
 					if (line && line.length > 0) {
 						unOpenSize += line.length;
 					}
 				}
-				if (unOpenSize == this.defaultNum) {
+				if (unOpenSize == this.defaultNum && flag) {
 					this.status = 2;
 					this.stopTimeCount();
+				}
+				if (unOpenSize - this.defaultNum + this.num < 5 && this.num < 3 && this.status == 0) {
+					this.canSuccessFlag = true;
+				} else {
+					this.canSuccessFlag = false;
 				}
 			},
 			// 计算剩余雷数
@@ -428,9 +459,7 @@
 		}
 
 		.main-center {
-			height: calc(100% - 80px);
 			box-sizing: border-box;
-			overflow-y: auto;
 
 			.main-content-box {
 				display: flex;
@@ -506,22 +535,21 @@
 					}
 				}
 			}
-
-			.main-bottom {
-				height: 80px;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-			}
-
-			.main-tip {
-				display: flex;
-				justify-content: center;
-				
-				.main-tip-list {
-					div {
-						margin: 12px 0;
-					}
+		}
+		.main-bottom {
+			height: 80px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+		
+		.main-tip {
+			display: flex;
+			justify-content: center;
+		
+			.main-tip-list {
+				div {
+					margin: 12px 0;
 				}
 			}
 		}
