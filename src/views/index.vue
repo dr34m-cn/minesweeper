@@ -4,8 +4,8 @@
 			<el-button type="success" @click="setSize(9, 9, 10)">基础</el-button>
 			<el-button type="warning" @click="setSize(16, 16, 40)">中级</el-button>
 			<el-button type="danger" @click="setSize(30, 16, 99)">专家</el-button>
-			<!-- <el-button type="info">自定义</el-button>
-			<el-button type="danger" @click="setSize(16, 30, 99)">专家（纵向）</el-button> -->
+			<!-- <el-button type="info">自定义</el-button> -->
+			<!-- <el-button type="danger" @click="setSize(16, 30, 99)">专家（纵向）</el-button> -->
 		</div>
 		<div class="main-center">
 			<div class="main-content-box">
@@ -64,8 +64,14 @@
 				</el-switch>
 				<el-button type="success" style="margin-left: 20px;" @click="autoOpen">一键翻开</el-button>
 			</div>
+			<div class="main-tip">
+				<div class="main-tip-list">
+					<div>第一次不会点到雷，格子里的数字表示其周围雷的数量，一旦点到雷就会输，无法撤回，所以要慎重；</div>
+					<div>一键翻开可以快速帮你翻开那些不需要思考的格子，如果你是初学者，不要使用该功能；</div>
+					<div style="text-align: center;">当前版本：v1.0.0</div>
+				</div>
+			</div>
 		</div>
-
 	</div>
 </template>
 
@@ -504,6 +510,17 @@
 				display: flex;
 				align-items: center;
 				justify-content: center;
+			}
+
+			.main-tip {
+				display: flex;
+				justify-content: center;
+				
+				.main-tip-list {
+					div {
+						margin: 12px 0;
+					}
+				}
 			}
 		}
 	}
